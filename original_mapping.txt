@@ -1,0 +1,19 @@
+Wii Remote + Nunchuk -> Xbox 360 bridge
+
+Current status: running in the background as a virtual Xbox 360 controller.
+
+Mapping:
+- Nunchuk stick -> Xbox left stick with inverted vertical axis; moving it also presses left-stick click
+- Wii Remote D-pad -> Xbox right stick
+- Both stick vertical axes are inverted (up Wii input -> down Xbox output)
+- Moving the Wii Remote D-pad also presses right-stick click
+- Wii Remote B -> RT; Wii Remote A -> RB
+- Wii Remote Plus / Minus -> Y / X
+- Wii Remote 1 / 2 -> Start / Back (Select)
+- Nunchuk C -> LB; Nunchuk Z -> LT
+- Other buttons are unmapped.
+
+To launch it again after Windows restarts, double-click run_wii_xbox_bridge.cmd.
+To stop the currently running bridge, double-click stop_wii_xbox_bridge.cmd.
+The bridge uses this PC's bundled Python runtime and the local deps folder.
+It does not change Bluetooth pairing.
