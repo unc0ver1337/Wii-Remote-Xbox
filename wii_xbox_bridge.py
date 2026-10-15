@@ -6,6 +6,7 @@ currently paired Nintendo RVL-CNT-01 and leaves the Bluetooth pairing alone.
 
 from __future__ import annotations
 
+import argparse
 import sys
 import time
 
@@ -65,6 +66,11 @@ def find_wiimote() -> dict:
 
 
 def main() -> int:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--mode", choices=("inverted", "normal"), default="inverted",
+                        help="Vertical axes for both sticks (default: inverted)")
+    args = parser.parse_args()
+    vertical_sign = -1 if args.mode == "inverted" else 1
     device_info = find_wiimote()
     remote = hid.device()
     pad = None
@@ -78,6 +84,7 @@ def main() -> int:
         pad = vg.VX360Gamepad()
         print("Wii Remote + Nunchuk -> virtual Xbox 360 controller is running.")
         print("Nunchuk stick -> left stick | Wii D-pad -> right stick")
+        print(f"Stick mode: {args.mode}")
         print("Wii B -> RT | A -> RB | + -> Y | - -> X | 1/2 -> Start/Back")
         print("Nunchuk C/Z -> LB/LT | stick movement also holds L3/R3")
         print("Press Ctrl+C to stop.", flush=True)
@@ -108,15 +115,15 @@ def main() -> int:
             if not (nunchuk_buttons & 0x01):
                 pad.left_trigger(255)
 
-            # User requested inverted vertical axes on both Xbox sticks.
-            pad.left_joystick(axis(stick_x), -axis(stick_y))
+            # Apply the selected vertical direction to both Xbox sticks.
+            pad.left_joystick(axis(stick_x), vertical_sign * axis(stick_y))
             nunchuk_stick_pressed = (abs(axis(stick_x)) > 0 or abs(axis(stick_y)) > 0)
             if nunchuk_stick_pressed:
                 pad.press_button(XB.XUSB_GAMEPAD_LEFT_THUMB)
 
             dpad_x = bool(buttons & WIIMOTE["right"]) - bool(buttons & WIIMOTE["left"])
-            dpad_y = bool(buttons & WIIMOTE["down"]) - bool(buttons & WIIMOTE["up"])
-            pad.right_joystick(dpad_x * 32767, dpad_y * 32767)
+            dpad_y = bool(buttons & WIIMOTE["up"]) - bool(buttons & WIIMOTE["down"])
+            pad.right_joystick(dpad_x * 32767, vertical_sign * dpad_y * 32767)
             if dpad_x or dpad_y:
                 pad.press_button(XB.XUSB_GAMEPAD_RIGHT_THUMB)
             pad.update()
